@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tipoff Launcher</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@1,800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef1f5;--panel:#fff;--panel2:#e6eaf0;--line:#d3d9e2;--ink:#121826;--mute:#5d6778;--amber:#c97a0a;--amberInk:#1a1204;--ok:#1f9d55;--warn:#c98a0a;--bad:#d1453b;color-scheme:light}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0c111b;--panel:#141b29;--panel2:#1b2436;--line:#26314a;--ink:#eef1f6;--mute:#8e9ab0;--amber:#f0a73c;--amberInk:#1a1204;--ok:#3ddc84;--warn:#f0c23c;--bad:#ff6b5e;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0c111b;--panel:#141b29;--panel2:#1b2436;--line:#26314a;--ink:#eef1f6;--mute:#8e9ab0;--amber:#f0a73c;--amberInk:#1a1204;--ok:#3ddc84;--warn:#f0c23c;--bad:#ff6b5e;color-scheme:dark}
+*{box-sizing:border-box}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font:500 14px/1.45 Barlow,system-ui,sans-serif}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.app{max-width:1100px;margin:0 auto;padding:16px;display:grid;grid-template-columns:200px 1fr;grid-template-rows:auto 1fr;gap:16px}
+header{grid-column:1/-1;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.brand{font:italic 800 26px/1 "Barlow Condensed",sans-serif;letter-spacing:.5px;display:flex;align-items:center;gap:8px}
+.brand i{width:26px;height:26px;border-radius:50%;background:var(--amber);display:inline-block;position:relative;overflow:hidden}
+.brand i:before{content:"";position:absolute;inset:0;border:2px solid var(--amberInk);border-radius:50%;clip-path:inset(0 0 0 48%)}
+.brand i:after{content:"";position:absolute;left:0;right:0;top:48%;height:2px;background:var(--amberInk)}
+nav{display:flex;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px}
+nav button{border:0;background:none;padding:6px 14px;border-radius:7px;color:var(--mute)}
+nav button[aria-selected=true]{background:var(--panel2);color:var(--ink)}
+.pill{margin-left:auto;display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--panel);border-radius:99px;padding:6px 12px}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--mute);display:inline-block;flex:none}
+.dot.ok{background:var(--ok)}.dot.warn{background:var(--warn)}.dot.bad{background:var(--bad)}
+aside{display:flex;flex-direction:column;gap:6px}
+aside h3,.sec h3{margin:0 0 4px;font-size:13px;color:var(--mute);font-weight:600}
+.game{display:flex;gap:10px;align-items:center;text-align:left;width:100%;border:1px solid transparent;background:none;padding:8px;border-radius:10px}
+.game:hover{background:var(--panel)}
+.game[aria-current=true]{background:var(--panel);border-color:var(--line)}
+.game b{display:grid;place-items:center;width:38px;height:38px;border-radius:9px;background:var(--panel2);font:italic 800 18px "Barlow Condensed",sans-serif;flex:none}
+.game small{display:block;color:var(--mute)}
+main{min-width:0}
+.hero{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:28px;min-height:250px}
+.hero svg{position:absolute;right:-30px;top:-20px;width:420px;height:320px;opacity:.9;pointer-events:none}
+.hero svg *{stroke:var(--line);fill:none;stroke-width:2}
+.big{position:absolute;right:28px;bottom:-34px;font:italic 800 210px/1 "Barlow Condensed",sans-serif;color:transparent;-webkit-text-stroke:2px var(--amber);opacity:.8;pointer-events:none}
+.hero>*:not(svg):not(.big){position:relative;max-width:520px}
+.hero h1{margin:6px 0 8px;font:italic 800 54px/1 "Barlow Condensed",sans-serif}
+.hero p{margin:0 0 18px;color:var(--mute)}
+.meta{display:flex;gap:22px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:12px;max-width:560px!important}
+.meta div{min-width:0}.meta span{display:block;color:var(--mute);font-size:12px}
+.meta button{border:0;background:none;padding:0;color:var(--amber);text-decoration:underline;font-size:13px}
+.tiles{display:grid;grid-template-columns:repeat(2,1fr) 1.6fr repeat(2,1fr);gap:10px;margin:14px 0}
+.tile{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:10px 12px;min-width:0}
+.tile span{color:var(--mute);font-size:12px;display:block}
+.tile b{display:flex;align-items:center;gap:7px;font-size:15px}
+#play{border:0;border-radius:12px;background:var(--amber);color:var(--amberInk);font-weight:600;font-size:20px;position:relative;overflow:hidden;min-height:60px;padding:0 16px}
+#play:hover{filter:brightness(1.07)}
+#play .bar{position:absolute;left:0;bottom:0;height:4px;background:var(--amberInk);width:0;transition:width .4s}
+#play.busy{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+#play.busy .bar{background:var(--amber)}
+.hint{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:var(--mute);margin:0 2px 16px}
+.hint a,.link{color:var(--amber);background:none;border:0;padding:0;text-decoration:underline;cursor:pointer}
+.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:12px;display:flex;gap:12px;align-items:center;min-width:0}
+.avatar{width:38px;height:38px;border-radius:50%;background:var(--amber);color:var(--amberInk);display:grid;place-items:center;font-weight:600;flex:none}
+.card input{width:100%;background:none;border:0;border-bottom:1px dashed var(--line);padding:1px 0;font-weight:600}
+.card small{color:var(--mute);display:block}
+.spark{width:100%;height:56px;margin-top:8px}
+.spark polyline{fill:none;stroke:var(--amber);stroke-width:2;stroke-linejoin:round}
+.panel{border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:16px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
+.btn{border:1px solid var(--line);background:var(--panel2);border-radius:8px;padding:6px 12px}
+.btn[aria-pressed=true]{border-color:var(--amber)}
+#log{font:12px/1.6 ui-monospace,Menlo,Consolas,monospace;max-height:420px;overflow:auto;background:var(--bg);border-radius:10px;padding:10px;margin:0;white-space:pre-wrap}
+.lv-warn{color:var(--warn)}.lv-error{color:var(--bad)}.lv-info{color:var(--mute)}
+.set{display:grid;grid-template-columns:1fr 1fr;gap:14px 24px}
+.set label{display:flex;flex-direction:column;gap:4px;color:var(--mute);font-size:13px}
+.set input[type=text],.set select{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px;color:var(--ink)}
+.set .chk{flex-direction:row;align-items:center;gap:8px;color:var(--ink)}
+.set .full{grid-column:1/-1}
+[hidden]{display:none!important}
+@media(max-width:820px){.app{grid-template-columns:1fr}aside{flex-direction:row;overflow-x:auto}aside h3{display:none}.game{width:auto;flex:none}.tiles{grid-template-columns:1fr 1fr}#play{grid-column:1/-1;order:-1}.row3,.set{grid-template-columns:1fr}.big{font-size:140px}.hero h1{font-size:42px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="brand"><i></i>Tipoff</div>
+  <nav role="tablist" aria-label="Sections">
+    <button role="tab" data-tab="play" aria-selected="true">Play</button>
+    <button role="tab" data-tab="logs" aria-selected="false">Game logs</button>
+    <button role="tab" data-tab="settings" aria-selected="false">Settings</button>
+  </nav>
+  <div class="pill" id="pill"><span class="dot" id="pdot"></span><span id="ptxt">Checking server</span></div>
+</header>
+
+<aside>
+  <h3>Library</h3>
+  <div id="library"></div>
+</aside>
+
+<main>
+<section id="tab-play">
+  <div class="hero">
+    <svg viewBox="0 0 420 320" aria-hidden="true"><circle cx="300" cy="170" r="110"/><circle cx="300" cy="170" r="40"/><path d="M300 60V280M190 170H420"/><path d="M60 40Q300 -90 540 40" /></svg>
+    <div class="big" id="big">19</div>
+    <div><span class="dot ok" style="margin-right:6px"></span><span id="tag">Community park</span></div>
+    <h1 id="title">NBA 2K19</h1>
+    <p id="desc">Join the community park.</p>
+    <div class="meta">
+      <div><span>Mode</span><b id="mode">Client</b></div>
+      <div><span>Version</span><b id="ver">1.4.2</b></div>
+      <div style="min-width:0"><span>Folder</span><b id="folder" title="" style="display:block;max-width:230px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></b></div>
+      <div><span>Files</span><button id="verify">Verify files</button></div>
+    </div>
+  </div>
+
+  <div class="tiles">
+    <div class="tile"><span>Web</span><b><i class="dot" id="d-web"></i><em id="t-web" style="font-style:normal">Checking</em></b></div>
+    <div class="tile"><span>World</span><b><i class="dot" id="d-world"></i><em id="t-world" style="font-style:normal">Checking</em></b></div>
+    <button id="play"><span id="playTxt">Play</span><span class="bar" id="bar"></span></button>
+    <div class="tile"><span>Game</span><b><i class="dot" id="d-game"></i><em id="t-game" style="font-style:normal">Idle</em></b></div>
+    <div class="tile"><span>Playing now</span><b id="players">&ndash;</b></div>
+  </div>
+
+  <div class="hint"><span id="hintTxt">Ready.</span><span><label style="cursor:pointer"><input type="checkbox" id="autojoin"> Join automatically when the server is back</label> &nbsp; <button class="link" data-go="logs">Game logs</button></span></div>
+
+  <div class="row3">
+    <div class="card"><div class="avatar" id="av">C</div><div style="min-width:0;flex:1"><input id="name" maxlength="20" aria-label="Your name in the park" placeholder="Your name"><small>Your name in the park</small></div></div>
+    <div class="card" id="padCard"><div class="avatar" style="background:var(--panel2);color:var(--ink)">&#127918;</div><div><b id="padTxt">No controller found</b><small id="padSub">Plug one in and press any button</small></div></div>
+    <div class="card" style="display:block"><b id="pingTxt">Ping &ndash;</b><small style="color:var(--mute)">Last 40 checks</small><svg class="spark" viewBox="0 0 200 56" preserveAspectRatio="none"><polyline id="spark" points=""/></svg></div>
+  </div>
+</section>
+
+<section id="tab-logs" hidden>
+  <div class="panel">
+    <div class="toolbar">
+      <h3 style="margin:0 auto 0 0">Game logs</h3>
+      <button class="btn" data-lv="all" aria-pressed="true">All</button>
+      <button class="btn" data-lv="warn" aria-pressed="false">Warnings</button>
+      <button class="btn" data-lv="error" aria-pressed="false">Errors</button>
+      <button class="btn" id="copy">Copy</button>
+      <button class="btn" id="clear">Clear</button>
+    </div>
+    <pre id="log" tabindex="0" aria-live="off"></pre>
+  </div>
+</section>
+
+<section id="tab-settings" hidden>
+  <div class="panel set">
+    <label class="full">Game folder<span style="display:flex;gap:8px"><input type="text" id="s-folder" style="flex:1"><button class="btn" id="browse" type="button">Browse</button></span></label>
+    <label class="full">Server address<input type="text" id="s-server" placeholder="https://your-server.com"></label>
+    <label>Display mode<select id="s-disp"><option>Fullscreen</option><option>Borderless window</option><option>Windowed</option></select></label>
+    <label>Resolution<select id="s-res"><option>Match desktop</option><option>1920 x 1080</option><option>2560 x 1440</option><option>1280 x 720</option></select></label>
+    <label class="full">Launch options<input type="text" id="s-args" placeholder="-skipintro"></label>
+    <label class="chk"><input type="checkbox" id="s-close"> Close the launcher when the game starts</label>
+    <label class="chk"><input type="checkbox" id="s-verify"> Check game files before every launch</label>
+    <label class="chk"><input type="checkbox" id="s-upd"> Update the launcher automatically</label>
+    <label>Theme<select id="s-theme"><option value="auto">Match system</option><option value="dark">Dark</option><option value="light">Light</option></select></label>
+    <div class="full"><button class="btn" id="reset">Reset all settings</button></div>
+  </div>
+</section>
+</main>
+</div>
+
+<script>
+(function(){
+var GAMES=[
+ {id:'g19',name:'NBA 2K19',num:'19',tag:'Community park',ver:'1.4.2',folder:'C:\\Users\\you\\Downloads\\NBA.2K19',desc:'Run the park with your crew. The launcher checks the server for you and tells you what it finds.'},
+ {id:'g20',name:'NBA 2K20',num:'20',tag:'Community park',ver:'0.9.8',folder:'D:\\Games\\NBA2K20',desc:'Join the community park. Voice and controller support are built in.'},
+ {id:'g21',name:'NBA 2K21',num:'21',tag:'Offline practice',ver:'2.0.1',folder:'D:\\Games\\NBA2K21',desc:'No server needed. Practice, run mods, then jump online later.'}
+];
+var DEF={name:'changing mags',disp:'Fullscreen',res:'Match desktop',args:'',close:false,verify:true,upd:true,theme:'auto',server:'',folders:{}};
+var S=load(),cur=GAMES[0],srv={web:'checking',world:'checking',ping:null,players:null},hist=[],logs=[],lvf='all',launching=null,pollT=null;
+var $=function(i){return document.getElementById(i)};
+function load(){try{var r=localStorage.getItem('tipoff');return Object.assign({},DEF,r?JSON.parse(r):{})}catch(e){return Object.assign({},DEF)}}
+function save(){try{localStorage.setItem('tipoff',JSON.stringify(S))}catch(e){}}
+function ts(){return new Date().toTimeString().slice(0,8)}
+function log(lv,msg){logs.push({t:ts(),lv:lv,m:msg});if(logs.length>500)logs.shift();renderLog()}
+function renderLog(){var el=$('log'),rows=logs.filter(function(l){return lvf==='all'||l.lv===lvf});
+ var atEnd=el.scrollTop+el.clientHeight>=el.scrollHeight-20;el.textContent='';
+ if(!rows.length){el.textContent='Nothing here yet. Logs appear when you launch a game.';return}
+ rows.forEach(function(l){var s=document.createElement('span');s.className='lv-'+l.lv;s.textContent=l.t+'  '+l.lv.padEnd(5)+' '+l.m+'\n';el.appendChild(s)});
+ if(atEnd)el.scrollTop=el.scrollHeight}
+
+/* library + hero */
+function folderOf(g){return S.folders[g.id]||g.folder}
+function renderLib(){var L=$('library');L.textContent='';
+ GAMES.forEach(function(g){var b=document.createElement('button');b.className='game';b.setAttribute('aria-current',g===cur);
+  var n=document.createElement('b');n.textContent=g.num;var d=document.createElement('div');d.textContent=g.name;var sm=document.createElement('small');sm.textContent=g.tag;d.appendChild(sm);
+  b.appendChild(n);b.appendChild(d);b.onclick=function(){if(launching)return;cur=g;renderLib();renderHero();log('info','Selected '+g.name)};L.appendChild(b)})}
+function renderHero(){$('big').textContent=cur.num;$('title').textContent=cur.name;$('tag').textContent=cur.tag;$('desc').textContent=cur.desc;$('ver').textContent=cur.ver;
+ var off=cur.tag==='Offline practice';$('mode').textContent=off?'Offline':'Client';var f=folderOf(cur);$('folder').textContent=f;$('folder').title=f;$('s-folder').value=f;renderServer()}
+
+/* simulated server */
+function realSample(){
+ if(!S.server){srv.web=srv.world='unset';srv.ping=null;srv.players=null;renderServer();$('ptxt').textContent='No server set';if(!launching)$('hintTxt').textContent='Add your server address in Settings to see live status.';return}
+ window.api.ping(S.server).then(function(r){
+  srv.web=srv.world=!r.ok?'offline':(r.ms>400?'busy':'online');srv.ping=r.ok?r.ms:null;srv.players=null;hist.push(srv.ping);if(hist.length>40)hist.shift();renderServer();
+  if(launching&&launching.waiting&&srv.web==='online'){launching.waiting=false;log('info','Server is back. Joining now.');step(2)}})}
+function sample(){if(window.api)realSample();else simSample()}
+function simSample(){
+ var down=Math.random()<.1,busy=!down&&Math.random()<.2;
+ srv.web=down?'offline':busy?'busy':'online';srv.world=down?'offline':(busy?'busy':'online');
+ srv.ping=down?null:Math.round(18+Math.random()*(busy?120:40));srv.players=down?null:Math.round(20+Math.random()*60);
+ hist.push(srv.ping);if(hist.length>40)hist.shift();renderServer();
+ if(launching&&launching.waiting&&srv.web==='online'){launching.waiting=false;log('info','Server is back. Joining now.');step(2)}}
+function cls(s){return s==='online'?'ok':s==='busy'?'warn':s==='offline'?'bad':''}
+function lbl(s){return s==='unset'?'Not set':s==='online'?'Online':s==='busy'?'Busy':s==='offline'?'Offline':'Checking'}
+function renderServer(){
+ if(cur.tag==='Offline practice'){['web','world'].forEach(function(k){$('d-'+k).className='dot';$('t-'+k).textContent='Not needed'});$('pdot').className='dot';$('ptxt').textContent='Offline mode';$('players').innerHTML='&ndash;';$('pingTxt').textContent='No server needed';$('spark').setAttribute('points','');return}
+ ['web','world'].forEach(function(k){$('d-'+k).className='dot '+cls(srv[k]);$('t-'+k).textContent=lbl(srv[k])});
+ $('pdot').className='dot '+cls(srv.web);
+ $('ptxt').textContent=srv.web==='online'?'Server online':srv.web==='busy'?'Server busy':srv.web==='offline'?'Server not answering':'Checking server';
+ $('players').textContent=srv.players==null?'\u2013':srv.players;
+ $('pingTxt').textContent=srv.ping==null?'Ping \u2013':'Ping '+srv.ping+' ms';
+ var pts=hist.map(function(v,i){var x=i*(200/39);var y=v==null?54:54-Math.min(v,150)/150*50;return x.toFixed(1)+','+y.toFixed(1)}).join(' ');$('spark').setAttribute('points',pts);
+ if(!launching)$('hintTxt').textContent=srv.web==='offline'?'The server isn\u2019t answering. You can still play, or turn on auto-join and we\u2019ll go in when it\u2019s back.':srv.web==='busy'?'The server is busy. Joining may take a little longer.':'Ready.'}
+
+/* launch flow */
+var STEPS=['Checking game files','Contacting server','Starting game'];
+function setPlay(txt,pct,busy){$('playTxt').textContent=txt;$('bar').style.width=pct+'%';$('play').classList.toggle('busy',!!busy)}
+function startLaunch(){
+ if(launching){cancel();return}
+ launching={i:0,waiting:false,t:null};log('info','Launching '+cur.name+' ('+folderOf(cur)+')');
+ if(S.args)log('info','Launch options: '+S.args);
+ step(S.verify?0:1)}
+function step(i){
+ if(!launching)return;launching.i=i;
+ if(i===1&&cur.tag!=='Offline practice'&&srv.web==='offline'&&$('autojoin').checked){launching.waiting=true;setPlay('Waiting for server \u2013 cancel',35,true);$('hintTxt').textContent='Waiting for the server. We\u2019ll join as soon as it answers.';log('warn','Server not answering. Waiting to auto-join.');return}
+ if(i>2){done();return}
+ $('t-game').textContent='Starting';$('d-game').className='dot warn';
+ setPlay(STEPS[i]+' \u2013 cancel',(i+1)*30,true);$('hintTxt').textContent=STEPS[i]+'\u2026';log('info',STEPS[i]);
+ if(i===1&&srv.web==='offline'&&cur.tag!=='Offline practice')log('warn','Server not answering. Launching anyway.');
+ launching.t=setTimeout(function(){step(i+1)},900+Math.random()*600)}
+function done(){clearTimeout(launching.t);launching=null;
+ if(window.api){window.api.launch(folderOf(cur),S.args).then(function(r){if(r.ok){log('info','Started '+r.exe);if(S.close)window.api.quit()}else{log('error',r.error);$('hintTxt').textContent=r.error;setPlay('Play',0,false);$('t-game').textContent='Idle';$('d-game').className='dot bad'}})}
+setPlay('Running',100,true);$('t-game').textContent='Running';$('d-game').className='dot ok';
+ $('hintTxt').textContent=S.close?'Launched. Closing the launcher.':'Game is running. You can close it from here.';log('info','Game process started');
+ if(S.close)log('info','Closing launcher (setting enabled)');
+ setTimeout(function(){setPlay('Play',0,false);$('t-game').textContent='Idle';$('d-game').className='dot'},5000)}
+function cancel(){clearTimeout(launching.t);launching=null;setPlay('Play',0,false);$('t-game').textContent='Idle';$('d-game').className='dot';$('hintTxt').textContent='Launch cancelled.';log('warn','Launch cancelled by user')}
+
+/* controller */
+function pad(){var g=(navigator.getGamepads?navigator.getGamepads():[]);var p=null;for(var i=0;i<g.length;i++)if(g[i]){p=g[i];break}
+ $('padTxt').textContent=p?'Controller ready':'No controller found';$('padSub').textContent=p?p.id.slice(0,38):'Plug one in and press any button';
+ if(p)log('info','Controller: '+p.id)}
+window.addEventListener('gamepadconnected',pad);window.addEventListener('gamepaddisconnected',pad);
+
+/* tabs */
+function tab(t){['play','logs','settings'].forEach(function(k){$('tab-'+k).hidden=k!==t});
+ document.querySelectorAll('nav button').forEach(function(b){b.setAttribute('aria-selected',b.dataset.tab===t)});if(t==='logs')renderLog()}
+document.querySelectorAll('nav button').forEach(function(b){b.onclick=function(){tab(b.dataset.tab)}});
+document.querySelector('[data-go]').onclick=function(){tab('logs')};
+
+/* logs toolbar */
+document.querySelectorAll('[data-lv]').forEach(function(b){b.onclick=function(){lvf=b.dataset.lv;document.querySelectorAll('[data-lv]').forEach(function(x){x.setAttribute('aria-pressed',x===b)});renderLog()}});
+$('clear').onclick=function(){logs=[];renderLog()};
+$('copy').onclick=function(){var t=logs.map(function(l){return l.t+' '+l.lv+' '+l.m}).join('\n');try{navigator.clipboard.writeText(t).then(function(){$('copy').textContent='Copied'},function(){$('copy').textContent='Copy failed'})}catch(e){$('copy').textContent='Copy failed'}setTimeout(function(){$('copy').textContent='Copy'},1500)};
+
+/* settings */
+function applyTheme(){var t=S.theme;if(t==='auto')document.documentElement.removeAttribute('data-theme');else document.documentElement.setAttribute('data-theme',t)}
+function bind(id,key,isChk){var el=$(id);if(isChk)el.checked=!!S[key];else el.value=S[key];
+ el.addEventListener(isChk?'change':'input',function(){S[key]=isChk?el.checked:el.value;save();if(key==='theme')applyTheme()})}
+bind('s-server','server');bind('s-disp','disp');bind('s-res','res');bind('s-args','args');bind('s-close','close',1);bind('s-verify','verify',1);bind('s-upd','upd',1);bind('s-theme','theme');
+$('s-folder').addEventListener('input',function(){S.folders[cur.id]=this.value;save();$('folder').textContent=this.value;$('folder').title=this.value});
+$('reset').onclick=function(){S=Object.assign({},DEF,{folders:{}});save();location.reload()};
+$('name').value=S.name;$('av').textContent=(S.name||'?').charAt(0).toUpperCase();
+$('name').addEventListener('input',function(){S.name=this.value;$('av').textContent=(this.value||'?').charAt(0).toUpperCase();save()});
+$('verify').onclick=function(){if(window.api){var f=folderOf(cur);log('info','Verifying '+f);window.api.verify(f).then(function(r){log(r.ok?'info':'error',r.msg);$('hintTxt').textContent=r.msg});return}log('info','Verifying '+folderOf(cur));$('hintTxt').textContent='Verifying files\u2026';setTimeout(function(){log('info','All files match. Nothing to repair.');$('hintTxt').textContent='Files verified. Nothing to repair.'},1200)};
+$('browse').onclick=function(){if(!window.api){alert('Browse works in the desktop app.');return}window.api.pickFolder().then(function(p){if(p){S.folders[cur.id]=p;save();$('s-folder').value=p;$('folder').textContent=p;$('folder').title=p}})};
+$('play').onclick=startLaunch;
+
+applyTheme();renderLib();renderHero();pad();
+log('info','Launcher 0.4.0 started');
+sample();setInterval(sample,4000);
+})();
+</script>
+</body>
+</html>

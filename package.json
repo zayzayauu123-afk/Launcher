@@ -1,0 +1,15 @@
+{
+  "name": "launcher",
+  "version": "0.4.0",
+  "description": "Game launcher",
+  "main": "main.js",
+  "scripts": { "start": "electron .", "build": "electron-builder --win portable" },
+  "devDependencies": { "electron": "^33.0.0", "electron-builder": "^25.1.8" },
+  "build": {
+    "appId": "local.launcher",
+    "productName": "Launcher",
+    "files": ["main.js", "preload.js", "index.html"],
+    "win": { "target": "portable", "signAndEditExecutable": false },
+    "portable": { "artifactName": "Launcher.exe" }
+  }
+}
